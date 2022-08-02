@@ -1,9 +1,9 @@
-﻿namespace TaskTracker.DAL.Models
+﻿namespace TaskTracker.DAL.Entities
 {
     public class BaseEntity
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime FineshedAt { get; set; }
+        public DateTime? FinishedAt { get; set; }
     }
 }

@@ -1,5 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
+using TaskTracker.BLL.Common;
+using TaskTracker.BLL.Interfaces;
+using TaskTracker.BLL.Services;
+using TaskTracker.DAL.Contract;
+using TaskTracker.DAL.Data;
+using TaskTracker.DAL.Repository;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -11,9 +18,28 @@ try
     // Add services to the container.
 
     builder.Services.AddControllers();
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+    builder.Services.AddScoped<IProjectService, ProjectService>();
+
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddDbContext<TaskTrackerContext>(opt =>
+    {
+        opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql"))
+            .UseSnakeCaseNamingConvention(); // To use snakeCase in PostgreSql
+    });
+
+    // Automapper
+    builder.Services.AddAutoMapper(typeof(IMapWith<>));
+    //builder.Services.AddAutoMapper(config =>
+    //{
+    //    config.AddProfile(new AssemblyMappingProfile(typeof(AssemblyMappingProfile).Assembly));
+    //});
+
+    // NLog: Setup NLog for Dependency injection
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
 
     var app = builder.Build();
 
@@ -27,6 +53,22 @@ try
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var serviceProvider = scope.ServiceProvider;
+        try
+        {
+            var context = serviceProvider.GetRequiredService<TaskTrackerContext>();
+            DbInitializer.Initialize(context);
+        }
+        catch (Exception exception)
+        {
+            logger.Error(exception, exception.Message);
+            throw;
+        }
+        
+    }
 
     app.MapControllers();
 

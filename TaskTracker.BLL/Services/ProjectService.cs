@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
+using TaskTracker.BLL.DTO.Project;
 using TaskTracker.BLL.DTO.ProjectDto;
 using TaskTracker.BLL.Interfaces;
 using TaskTracker.DAL.Contract;
@@ -22,34 +23,35 @@ namespace TaskTracker.BLL.Services
 
         public async Task<IEnumerable<ProjectDto>> GetAll()
         {
-            var projects = await _unitOfWork.Repository<Project>().GetAll();
+            var projects = await _unitOfWork.ProjectRepository.GetAll();
             return _mapper.Map<IEnumerable<ProjectDto>>(projects);
         }
 
         public async Task<ProjectDto> GetById(int id)
         {
-            var project = await _unitOfWork.Repository<Project>().GetById(id);
+            var project = await _unitOfWork.ProjectRepository.GetById(id);
             return _mapper.Map<ProjectDto>(project);
         }
 
-        public async Task<int> CreateProject(ProjectDto projectDto)
+        public async Task<int> CreateProject(ProjectDtoCreate projectDto)
         {
             if (projectDto == null)
             {
                 _logger.LogError("Create failed"); // TODO: validation
                 throw new ArgumentNullException(nameof(projectDto));
             }
-            return await _unitOfWork.Repository<Project>().Add(_mapper.Map<Project>(projectDto));
+            return await _unitOfWork.ProjectRepository.Add(_mapper.Map<Project>(projectDto));
         }
 
-        public async Task UpdateProject(ProjectDto projectDto)
+        public async Task UpdateProject(ProjectDtoUpdate projectDto)
         {
-            _unitOfWork.Repository<Project>().Update(_mapper.Map<Project>(projectDto));
+            _logger.LogDebug($"{projectDto.Name} status {projectDto.Status}");
+            _unitOfWork.ProjectRepository.Update(_mapper.Map<Project>(projectDto));
         }
 
         public async Task DeleteProject(int id)
         {
-            _unitOfWork.Repository<Project>().Delete(id);
+            _unitOfWork.ProjectRepository.Delete(id);
         }
     }
 }

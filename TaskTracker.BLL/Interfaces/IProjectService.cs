@@ -1,4 +1,5 @@
-﻿using TaskTracker.BLL.DTO.ProjectDto;
+﻿using TaskTracker.BLL.DTO.Project;
+using TaskTracker.BLL.DTO.ProjectDto;
 
 namespace TaskTracker.BLL.Interfaces
 {
@@ -6,8 +7,8 @@ namespace TaskTracker.BLL.Interfaces
     {
         Task<IEnumerable<ProjectDto>> GetAll();
         Task<ProjectDto> GetById(int id);
-        Task<int> CreateProject(ProjectDto projectDto);
-        Task UpdateProject(ProjectDto projectDto);
+        Task<int> CreateProject(ProjectDtoCreate projectDto);
+        Task UpdateProject(ProjectDtoUpdate projectDto);
         Task DeleteProject(int id);
     }
 }

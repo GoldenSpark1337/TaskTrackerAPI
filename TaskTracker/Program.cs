@@ -17,10 +17,15 @@ try
 
     // Add services to the container.
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddNewtonsoftJson(opt =>
+        opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+    );
 
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+    builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
     builder.Services.AddScoped<IProjectService, ProjectService>();
+    builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
+
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -31,11 +36,11 @@ try
     });
 
     // Automapper
-    builder.Services.AddAutoMapper(typeof(IMapWith<>));
-    //builder.Services.AddAutoMapper(config =>
-    //{
-    //    config.AddProfile(new AssemblyMappingProfile(typeof(AssemblyMappingProfile).Assembly));
-    //});
+    //builder.Services.AddAutoMapper(typeof(IMapWith<>));
+    builder.Services.AddAutoMapper(config =>
+    {
+        config.AddProfile(new AssemblyMappingProfile(typeof(AssemblyMappingProfile).Assembly));
+    });
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();

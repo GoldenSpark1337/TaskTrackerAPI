@@ -17,12 +17,16 @@ namespace TaskTracker.DAL.Repository
 
         public async Task<IEnumerable<Project>> GetAll()
         {
-            return await _dbContext.Projects.ToListAsync();
-        }   
+            return await _dbContext.Projects
+                .Include(p => p.Tasks)
+                .ToListAsync();
+        }
 
         public async Task<Project> GetById(int id)
         {
-            return await _dbContext.Projects.FindAsync(id) 
+            return await _dbContext.Projects
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == id)
                 ?? throw new ArgumentNullException($"Entity with {id} was not found.");
         }
 
@@ -35,12 +39,17 @@ namespace TaskTracker.DAL.Repository
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            var project = _dbContext.Projects.Find(id);
+            if (project == null) throw new ArgumentNullException();
+            _dbContext.Projects.Remove(project);
+            _dbContext.SaveChangesAsync();
         }
 
-        public void Update(Project entity)
+        public void Update(Project project)
         {
-            throw new NotImplementedException();
+            _dbContext.Projects.Attach(project);
+            _dbContext.Entry(project).State = EntityState.Modified;
+            _dbContext.SaveChangesAsync();
         }
     }
 }

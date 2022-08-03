@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using TaskTracker.BLL.DTO.Project;
 using TaskTracker.BLL.DTO.ProjectDto;
 using TaskTracker.BLL.Interfaces;
 
@@ -29,15 +29,21 @@ namespace TaskTracker.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> CreateProject(ProjectDto projectDto)
+        public async Task<ActionResult<int>> CreateProject(ProjectDtoCreate projectDto)
         {
             return Ok(await _projectService.CreateProject(projectDto));
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateProject(ProjectDto projectDto)
+        public async Task<ActionResult> UpdateProject(ProjectDtoUpdate projectDtoUpdate)
         {
-            return Ok(_projectService.UpdateProject(projectDto));
+            return Ok(_projectService.UpdateProject(projectDtoUpdate));
+        }
+
+        [HttpPatch]
+        public async Task<ActionResult> PatchProject(ProjectDtoUpdate projectDtoUpdate)
+        {
+            return Ok(_projectService.UpdateProject(projectDtoUpdate));
         }
 
         [HttpDelete("{id}")]

@@ -18,7 +18,7 @@ namespace TaskTracker.BLL.DTO.ProjectDto
         public void Mapping(Profile profile)
         {
             profile.CreateMap<DAL.Entities.Project, ProjectDto>();
-                //.ForMember(p => p.Status, opt => opt.MapFrom(p => p.Status));
+            profile.CreateMap<ProjectDto, DAL.Entities.Project>();
         }
     }
 }

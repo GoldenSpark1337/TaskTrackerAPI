@@ -16,12 +16,16 @@ namespace TaskTracker.DAL.Repository
 
         public async Task<IEnumerable<ProjectTask>> GetAll()
         {
-            return await _dbContext.Tasks.ToListAsync();
+            return await _dbContext.Tasks
+                .Include(pt => pt.Project)
+                .ToListAsync();
         }
 
         public async Task<ProjectTask> GetById(int id)
         {
-            return await _dbContext.Tasks.FindAsync(id)
+            return await _dbContext.Tasks
+                .Include(pt => pt.Project)
+                .FirstOrDefaultAsync(pt => pt.Id == id)
                 ?? throw new ArgumentNullException($"Entity with {id} was not found.");
         }
 
@@ -41,9 +45,11 @@ namespace TaskTracker.DAL.Repository
 
         }
 
-        public void Update(ProjectTask entity)
+        public void Update(ProjectTask projectTask)
         {
-            throw new NotImplementedException();
+            _dbContext.Tasks.Attach(projectTask);
+            _dbContext.Entry(projectTask).State = EntityState.Modified;
+            _dbContext.SaveChangesAsync();
         }
     }
 }
